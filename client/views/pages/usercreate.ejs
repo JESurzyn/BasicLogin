@@ -1,2 +1,38 @@
 <% layout('layouts/boilerplate') %>
-<h1>Create User</h1>
+<div class="row">
+    <h1 class="text-center">Create New User</h1>
+    <div class="col-6 offset-3">
+        <form action="/new" method="POST">
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input class="form-control" type="text" id="username" name="user[username]">
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input class="form-control" type="text" id="password" name="user[password]">
+            </div>
+            <div class="mb-3">
+                <label for="firstname" class="form-label">First Name</label>
+                <input class="form-control" type="text" id="firstname" name="user[firstName]">
+            </div>
+            <div class="mb-3">
+                <label for="lastname" class="form-label">Last Name</label>
+                <input class="form-control" type="text" id="lastname" name="user[lastName]">
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+            <div class="input-group">
+                <span class="input-group-text" id="price-label">@</span>
+                <input class="form-control" type="text" id="email" placeholder="your@email.com" aria-lable="email" aria-describedby="price-label" name="user[email]">
+            </div>
+            </div>
+            <div class="mb-3">
+                <button class="btn btn-success">Create User and Log In</button>
+            </div>
+        </form>
+        <a href="/">Return to Log In Page</a>
+
+    </div>
+</div>
+
+
