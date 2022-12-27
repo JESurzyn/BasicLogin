@@ -26,9 +26,24 @@ app.set('views', path.join(__dirname, '../client/views'))
 
 app.use(express.urlencoded({extended:true}))
 
-app.get('/', async (req, res) => {
+
+app.get('/', (req, res) => {
     res.render('pages/login')
 })
+
+app.get('/autherror', (req, res) => {
+    res.render('pages/authcomboerror')
+})
+
+app.get('/noaccount', (req, res) => {
+    res.render('pages/noaccount')
+})
+
+app.get('/alreadyexists', (req, res) => {
+    res.render('pages/alreadyexists')
+})
+
+
 
 app.get('/user/:username', async (req, res) => {
     const {username} = req.params
@@ -46,13 +61,13 @@ app.post('/home', async (req, res) => {
     //logic that compares un and un and pw and pw
     if(user.length< 1){
         //probably should handle this a little better
-        res.redirect('/')
+        res.redirect('/noaccount')
     } else {
         //do credentials comparions
         if(req.body.username === user[0].username && req.body.password ===user[0].password) {
             res.redirect(`user/${user[0].username}`);
         } else {
-            res.redirect('/')
+            res.redirect('/authcomboerror')
         }  
     }
 })
@@ -67,7 +82,7 @@ app.post('/new', async (req, res) => {
     if (userQuery.length > 0) {
         //maybe add exception?
         console.log('ERROR: user exists')
-        res.redirect('/signup')
+        res.redirect('/alreadyexists')
     } else {
         console.log('user doesnt exist')
         console.log('creating user')
