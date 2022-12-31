@@ -3,6 +3,8 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const ejsMate = require('ejs-mate');
+const ExpressError = require('./utils/ExpressError')
+const wrapAsync = require('./utils/wrapAsync') 
 // const methodOverride = require('method-override');
 
 //models
@@ -45,15 +47,15 @@ app.get('/alreadyexists', (req, res) => {
 
 
 
-app.get('/user/:username', async (req, res) => {
+app.get('/user/:username', wrapAsync(async (req, res) => {
     const {username} = req.params
     const userFound = await User.find({username: username})
     const user = userFound[0]
     console.log(user)
     res.render('pages/home', {user})
-})
+}));
 
-app.post('/home', async (req, res) => {
+app.post('/home', wrapAsync(async (req, res) => {
     console.log(req.body)
     const user = await User.find({username: req.body.username})
     console.log(user)
@@ -70,13 +72,13 @@ app.post('/home', async (req, res) => {
             res.redirect('/authcomboerror')
         }  
     }
-})
+}));
 
-app.get('/signup', async (req, res) => {
+app.get('/signup', wrapAsync(async (req, res) => {
     res.render('pages/usercreate')
-})
+}));
 
-app.post('/new', async (req, res) => {
+app.post('/new', wrapAsync(async (req, res) => {
     const user = new User(req.body.user);
     const userQuery = await User.find({username: user.username})
     if (userQuery.length > 0) {
@@ -90,7 +92,19 @@ app.post('/new', async (req, res) => {
         console.log('redirecting to home')
         res.redirect(`user/${user.username}`)
     }
+}));
+
+//error handling for unrecognized routes
+app.all('*', (req,res,next) => {
+    next(new ExpressError('Page Not Found', 404))
 })
+
+// //basic error middleware, default messaging
+app.use((err, req, res, next) =>{
+    const { statusCode = 500 } = err;
+    if(!err.message) err.message = 'Oh No!! something went wrong';
+    res.status(statusCode).render('error', {err})
+});
 
 const port = 3000
 app.listen(port, () => {
