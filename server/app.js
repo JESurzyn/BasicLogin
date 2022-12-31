@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const ejsMate = require('ejs-mate');
 const ExpressError = require('./utils/ExpressError')
 const wrapAsync = require('./utils/wrapAsync') 
+const {userSchema} = require('./schemas.js')
 // const methodOverride = require('method-override');
 
 //models
@@ -28,6 +29,16 @@ app.set('views', path.join(__dirname, '../client/views'))
 
 app.use(express.urlencoded({extended:true}))
 
+//joi schema validator
+const userValidator = (req, res, next) => {
+    const {error} = userSchema.validate(req.body);
+    if(error) {
+        const msg = error.details.map( el => el.message).join(',')
+        throw new ExpressError(msg, 400)
+    }
+    next();
+}
+
 
 app.get('/', (req, res) => {
     res.render('pages/login')
@@ -44,7 +55,6 @@ app.get('/noaccount', (req, res) => {
 app.get('/alreadyexists', (req, res) => {
     res.render('pages/alreadyexists')
 })
-
 
 
 app.get('/user/:username', wrapAsync(async (req, res) => {
@@ -78,7 +88,7 @@ app.get('/signup', wrapAsync(async (req, res) => {
     res.render('pages/usercreate')
 }));
 
-app.post('/new', wrapAsync(async (req, res) => {
+app.post('/new', userValidator, wrapAsync(async (req, res) => {
     const user = new User(req.body.user);
     const userQuery = await User.find({username: user.username})
     if (userQuery.length > 0) {
