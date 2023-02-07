@@ -9,9 +9,12 @@
   "author": "jordan",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.1.0",
     "ejs": "^3.1.8",
     "ejs-mate": "^4.0.0",
     "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "express-sessions": "^1.0.1",
     "mongoose": "^6.8.1"
   }
 }
