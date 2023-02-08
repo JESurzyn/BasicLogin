@@ -26,6 +26,15 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '../client/views'))
 
 app.use(express.urlencoded({extended:true}))
+app.use(session({secret:'notagoodsecret'}))
+
+//login middleware
+const requireLogin = (req, res, next) => {
+    if(!req.session.user_id) {
+        return res.redirect('/')
+    }
+    next();
+}
 
 
 app.get('/', (req, res) => {
