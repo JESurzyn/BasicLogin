@@ -55,7 +55,7 @@ app.get('/alreadyexists', (req, res) => {
 
 
 
-app.get('/user/:username', async (req, res) => {
+app.get('/user/:username', requireLogin, async (req, res) => {
     const {username} = req.params
     const userFound = await User.find({username: username})
     const user = userFound[0]
@@ -75,6 +75,7 @@ app.post('/home', async (req, res) => {
     } else {
         //do credentials comparions
         if(req.body.username === user[0].username && req.body.password ===user[0].password) {
+            req.session.user_id = user[0]._id;
             res.redirect(`user/${user[0].username}`);
         } else {
             res.redirect('/authcomboerror')
@@ -97,9 +98,16 @@ app.post('/new', async (req, res) => {
         console.log('user doesnt exist')
         console.log('creating user')
         await user.save();
+        //dropping in user session
+        req.session.user_id = user._id
         console.log('redirecting to home')
         res.redirect(`user/${user.username}`)
     }
+})
+
+app.post('/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/')
 })
 
 const port = 3000
