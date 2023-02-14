@@ -10,7 +10,7 @@ const session = require('express-session');
 const User = require('../models/user');
 
 //db
-mongoose.connect('mongodb://localhost:27017/usersForLoginApp')
+mongoose.connect('mongodb://localhost:27017/usersForLoginApp2')
     .then(()=> {
         console.log("MONGO DB CONNECTION OPEN")
     })
@@ -63,23 +63,35 @@ app.get('/user/:username', requireLogin, async (req, res) => {
     res.render('pages/home', {user})
 })
 
+//old method before user model statics
+// app.post('/home', async (req, res) => {
+//     console.log(req.body)
+//     const user = await User.find({username: req.body.username})
+//     console.log(user)
+//     console.log(user.length)
+//     //logic that compares un and un and pw and pw
+//     if(user.length< 1){
+//         //probably should handle this a little better
+//         res.redirect('/noaccount')
+//     } else {
+//         //do credentials comparions
+//         if(req.body.username === user[0].username && req.body.password ===user[0].password) {
+//             req.session.user_id = user[0]._id;
+//             res.redirect(`user/${user[0].username}`);
+//         } else {
+//             res.redirect('/authcomboerror')
+//         }  
+//     }
+// })
 app.post('/home', async (req, res) => {
-    console.log(req.body)
-    const user = await User.find({username: req.body.username})
-    console.log(user)
-    console.log(user.length)
+    const {username, password} = req.body;
     //logic that compares un and un and pw and pw
-    if(user.length< 1){
-        //probably should handle this a little better
-        res.redirect('/noaccount')
+    const foundUser = await User.findAndValidate(username, password);
+    if(foundUser) {
+        req.session.user_id = foundUser._id;
+        res.redirect(`/user/${username}`)
     } else {
-        //do credentials comparions
-        if(req.body.username === user[0].username && req.body.password ===user[0].password) {
-            req.session.user_id = user[0]._id;
-            res.redirect(`user/${user[0].username}`);
-        } else {
-            res.redirect('/authcomboerror')
-        }  
+        res.redirect('/autherror')
     }
 })
 
@@ -103,6 +115,8 @@ app.post('/new', async (req, res) => {
         console.log('redirecting to home')
         res.redirect(`user/${user.username}`)
     }
+    //     console.log(user)
+    // }
 })
 
 app.post('/logout', (req, res) => {
