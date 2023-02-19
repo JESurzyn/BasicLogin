@@ -4,6 +4,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const ejsMate = require('ejs-mate');
 const session = require('express-session');
+const flash = require('connect-flash');
 // const methodOverride = require('method-override');
 
 //models
@@ -27,6 +28,12 @@ app.set('views', path.join(__dirname, '../client/views'))
 
 app.use(express.urlencoded({extended:true}))
 app.use(session({secret:'notagoodsecret'}))
+app.use(flash());
+app.use((req, res, next) => { //really should clean this up and make iterable
+    res.locals.errors = req.flash('alreadyExists');
+    res.locals.errors2 = req.flash('authError');
+    next();
+})
 
 //login middleware
 const requireLogin = (req, res, next) => {
@@ -91,7 +98,8 @@ app.post('/home', async (req, res) => {
         req.session.user_id = foundUser._id;
         res.redirect(`/user/${username}`)
     } else {
-        res.redirect('/autherror')
+        req.flash('authError', 'Incorrect Username Password Combination')
+        res.redirect('/')
     }
 })
 
@@ -105,7 +113,9 @@ app.post('/new', async (req, res) => {
     if (userQuery.length > 0) {
         //maybe add exception?
         console.log('ERROR: user exists')
-        res.redirect('/alreadyexists')
+        req.flash('alreadyExists', 'User Already Exists')
+        // res.redirect('/alreadyexists')
+        res.redirect('/signup')
     } else {
         console.log('user doesnt exist')
         console.log('creating user')
