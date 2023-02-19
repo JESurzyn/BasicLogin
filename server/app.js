@@ -98,6 +98,7 @@ app.post('/home', async (req, res) => {
         req.session.user_id = foundUser._id;
         res.redirect(`/user/${username}`)
     } else {
+        // res.redirect('/autherror')
         req.flash('authError', 'Incorrect Username Password Combination')
         res.redirect('/')
     }
